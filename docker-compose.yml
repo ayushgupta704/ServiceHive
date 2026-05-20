@@ -1,0 +1,39 @@
+services:
+  frontend:
+    build: ./frontend
+    container_name: servicehive-frontend
+    ports:
+      - '80:80'
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=/api/v1
+
+  backend:
+    build: ./backend
+    container_name: servicehive-backend
+    ports:
+      - '5000:5000'
+    environment:
+      - NODE_ENV=${NODE_ENV:-development}
+      - PORT=5000
+      - MONGO_URI=${MONGO_URI:-mongodb://mongodb:27017/servicehive}
+      - JWT_ACCESS_SECRET=${JWT_ACCESS_SECRET:-your_super_secret_jwt_access_key_here_32_chars}
+      - JWT_REFRESH_SECRET=${JWT_REFRESH_SECRET:-your_super_secret_jwt_refresh_key_here_32_chars}
+      - JWT_ACCESS_EXPIRE=15m
+      - JWT_REFRESH_EXPIRE=7d
+      - JWT_COOKIE_EXPIRE=7
+      - CLIENT_URL=${CLIENT_URL:-http://localhost}
+    depends_on:
+      - mongodb
+
+  mongodb:
+    image: mongo:latest
+    container_name: servicehive-mongodb
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+
+volumes:
+  mongodb_data:
